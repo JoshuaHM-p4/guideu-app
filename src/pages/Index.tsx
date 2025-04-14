@@ -7,15 +7,27 @@ import { toast } from '@/components/ui/use-toast';
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
+  const [flyTo, setFlyTo] = useState<(coordinates: [number, number], zoom?: number) => void>();
+
 
   const handleFeatureSelect = (feature: any) => {
     setSelectedFeature(feature);
+    const properties = feature.properties;
+
+    // Calculate coordinates (example: centroid of MultiPolygon)
+    const coordinates = calculateMultiPolygonCentroid(feature.geometry.coordinates);
+
+    if (coordinates && flyTo) {
+      flyTo(coordinates, 20); // Trigger the flyTo function
+    }
+
     toast({
       title: "Location Selected",
-      description: `You selected ${feature.name}`,
-      duration: 2000
+      description: `You selected ${properties.name}`,
+      duration: 2000,
     });
   };
+
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -26,6 +38,7 @@ const Index = () => {
       {/* Map Container */}
       <MapContainer
         onMenuToggle={toggleSidebar}
+        onFlyTo={(flyToFn) => setFlyTo(() => flyToFn)}
       />
 
       {/* Sidebar */}

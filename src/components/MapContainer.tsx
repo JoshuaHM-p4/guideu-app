@@ -52,7 +52,13 @@ const MapController = ({
   return null;
 };
 
-const MapContainer = ({ onMenuToggle }: { onMenuToggle: () => void }) => {
+const MapContainer = ({
+  onMenuToggle,
+  onFlyTo,
+}: {
+  onMenuToggle: () => void;
+  onFlyTo: (coordinates: [number, number], zoom?: number) => void;
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const { campusData, isLoading, error } = useCampusData();
@@ -113,6 +119,15 @@ const MapContainer = ({ onMenuToggle }: { onMenuToggle: () => void }) => {
     if (campusData && campusData.features && campusData.features.length > 0) {
       createLeafletMarkers(map, campusData, (feature) => {
         setSelectedFeature(feature);
+      });
+    }
+    if (onFlyTo) {
+      onFlyTo(
+        (coordinates: [number, number], zoom = 20) => {
+        map.flyTo(coordinates, zoom, {
+          duration: 1,
+          animate: true,
+        });
       });
     }
   };
